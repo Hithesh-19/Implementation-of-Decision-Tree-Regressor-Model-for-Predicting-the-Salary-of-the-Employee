@@ -23,58 +23,47 @@ RegisterNumber: 212225040129
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.tree import DecisionTreeRegressor, plot_tree
 
-df = pd.read_csv("Employee.csv")
+df = pd.read_csv("Salary.csv")
 
-label = LabelEncoder()
+X = df[['Level']]
 
-df['Work_accident'] = label.fit_transform(df['Work_accident'])
-df['promotion_last_5years'] = label.fit_transform(df['promotion_last_5years'])
-df['Departments '] = label.fit_transform(df['Departments '])
-df['salary'] = label.fit_transform(df['salary'])
-df['left'] = label.fit_transform(df['left'])
+y = df['Salary']
 
-X = df[['satisfaction_level',
-        'last_evaluation',
-        'number_project',
-        'average_montly_hours',
-        'time_spend_company']]
+model = DecisionTreeRegressor(random_state=42)
 
-y = df['left']
+model.fit(X, y)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+prediction = model.predict([[6.5]])
 
-model = DecisionTreeClassifier()
+print("Predicted Salary:", prediction[0])
 
-model.fit(X_train, y_train)
+plt.scatter(df['Level'], df['Salary'])
 
-y_pred = model.predict(X_test)
+plt.plot(df['Level'], model.predict(X))
 
-print("Accuracy:", accuracy_score(y_test, y_pred))
+plt.xlabel("Position Level")
+plt.ylabel("Salary")
+plt.title("Decision Tree Regression")
 
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
+plt.show()
 
 plt.figure(figsize=(12,8))
 
 plot_tree(model,
-          feature_names=X.columns,
-          class_names=['Stay', 'Left'],
+          feature_names=['Level'],
           filled=True)
 
-plt.title("Employee Churn Decision Tree")
+plt.title("Decision Tree Regressor Tree")
 
 plt.show()
 ```
 
 ## Output:
-<img width="1040" height="742" alt="image" src="https://github.com/user-attachments/assets/f773528b-0034-44e8-a8bc-d858fd9c5a3c" />
+<img width="685" height="501" alt="Screenshot 2026-05-28 201108" src="https://github.com/user-attachments/assets/12b267db-a4a8-46d0-875a-063e28cf9c81" />
+<img width="1023" height="666" alt="Screenshot 2026-05-28 201141" src="https://github.com/user-attachments/assets/350177df-adfd-4432-a52a-af7fdd41ba7b" />
+
 
 
 
