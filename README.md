@@ -22,63 +22,59 @@ RegisterNumber: 212225040129
 */
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, confusion_matrix
 
-# ------------------------------
-# Step 1: Sample dataset
-# ------------------------------
-data = {
-    'Position': ['Business Analyst', 'Junior Consultant', 'Senior Consultant',
-                 'Manager', 'Country Manager', 'Region Manager',
-                 'Partner', 'Senior Partner', 'C-level', 'CEO'],
-    'Level': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    'Salary': [45000, 50000, 60000, 80000, 110000, 150000, 200000, 300000, 500000, 1000000]
-}
+df = pd.read_csv("Employee.csv")
 
-df = pd.DataFrame(data)
+label = LabelEncoder()
 
-# ------------------------------
-# Step 2: Split features and target
-# ------------------------------
-X = df[['Level']]     # Feature (Level)
-y = df['Salary']      # Target (Salary)
+df['Work_accident'] = label.fit_transform(df['Work_accident'])
+df['promotion_last_5years'] = label.fit_transform(df['promotion_last_5years'])
+df['Departments '] = label.fit_transform(df['Departments '])
+df['salary'] = label.fit_transform(df['salary'])
+df['left'] = label.fit_transform(df['left'])
 
-# ------------------------------
-# Step 3: Create Decision Tree Regressor
-# ------------------------------
-regressor = DecisionTreeRegressor(random_state=42)
-regressor.fit(X, y)
+X = df[['satisfaction_level',
+        'last_evaluation',
+        'number_project',
+        'average_montly_hours',
+        'time_spend_company']]
 
-# ------------------------------
-# Step 4: Predict salary for the dataset or new levels
-# ------------------------------
-y_pred = regressor.predict(X)
-print("Predicted salaries:", y_pred)
+y = df['left']
 
-# Example: predict salary for a new employee at level 6.5
-level = np.array([[6.5]])
-predicted_salary = regressor.predict(level)
-print(f"Predicted Salary for level {level[0][0]}: {predicted_salary[0]}")
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
-# ------------------------------
-# Step 5: Visualize the results (High-resolution curve)
-# ------------------------------
-X_grid = np.arange(min(X.values), max(X.values)+0.01, 0.01)  # High-resolution for smoother curve
-X_grid = X_grid.reshape(-1, 1)
+model = DecisionTreeClassifier()
 
-plt.scatter(X, y, color='red', label='Actual Salary')
-plt.plot(X_grid, regressor.predict(X_grid), color='blue', label='Decision Tree Prediction')
-plt.title('Decision Tree Regression: Level vs Salary')
-plt.xlabel('Level')
-plt.ylabel('Salary')
-plt.legend()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+plt.figure(figsize=(12,8))
+
+plot_tree(model,
+          feature_names=X.columns,
+          class_names=['Stay', 'Left'],
+          filled=True)
+
+plt.title("Employee Churn Decision Tree")
+
 plt.show()
 ```
 
 ## Output:
-<img width="1301" height="782" alt="image" src="https://github.com/user-attachments/assets/7457e3ef-cb9d-480f-816e-c9fbc2454271" />
+<img width="1040" height="742" alt="image" src="https://github.com/user-attachments/assets/f773528b-0034-44e8-a8bc-d858fd9c5a3c" />
 
 
 
